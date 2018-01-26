@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>中国地图作业2</title>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/china.js"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div id="main" style="width: 800px;height:400px;"></div>
+<script>
+    $(function () {
+        var s1=[];
+        var s2=[];
+        var s3=[];
+        var s4=[];
+        $.ajax({
+            async:false,
+            type:"get",
+            url:"json/citys.json",
+            dataType:"json",
+            success:function (data) {
+                console.log(data.data);
+                $.each(data.data,function (index,item) {
+                    s1.push({name:item.name,value:item.count});//城市，量
+                    s2.push(item.name);//城市
+                    s3.push({name:item.name,value:[item.longitude,item.latitude,item.count]});//经纬度
+                    // s3[item.name]=[item.longitude,item.latitude];//经纬度
+                    // s4.push(item.count);
+                });
+            }
+        });
+        console.log(s1);
+        console.log(s2);
+        console.log(s3);
+        console.log(s3.slice(0,10));
+        // var convertData = function (s3) {
+        //     var res = [];
+        //     for (var i = 0; i < s3.length; i++) {
+        //         var geoCoord = s3[s3[i].name];
+        //         if (geoCoord) {
+        //             res.push({
+        //                 name: s3[i].name,
+        //                 value: geoCoord.concat(s3[i].value)
+        //             });
+        //         }
+        //     }
+        //     return res;
+        // };
+
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+            backgroundColor: '#404a59',
+            title: {
+                text: '地图作业2',
+                left: 'center',
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            tooltip : {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                y: 'bottom',
+                x:'right',
+                data:['pm2.5'],
+                textStyle: {
+                    color: '#fff'
+                }
+            },
+            geo: {
+                map: 'china',
+                label: {
+                    emphasis: {
+                        show: false
+                    }
+                },
+                roam: true,
+                itemStyle: {
+                    normal: {
+                        areaColor: '#323c48',
+                        borderColor: '#111'
+                    },
+                    emphasis: {
+                        areaColor: '#2a333d'
+                    }
+                }
+            },
+            series : [
+                {
+                    name: '星光点',//地图名字
+                    type: 'scatter',
+                    coordinateSystem: 'geo',
+                    data: s3,//城市，量
+                    // symbolSize: function (val) {
+                    //     return val[2] / 10;
+                    // },
+                    label: {
+                        normal: {
+                            formatter: '{c}',
+                            position: 'right',
+                            show: false
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#ddb926'
+                        }
+                    }
+                },
+                {
+                    name: 'Top 5',
+                    type: 'effectScatter',
+                    coordinateSystem: 'geo',
+                    data: s3.slice(0, 10),
+                    symbolSize: function (val) {
+                        return val[2] / 1000;
+                    },
+                    showEffectOn: 'render',
+                    rippleEffect: {
+                        brushType: 'stroke'
+                    },
+                    hoverAnimation: true,
+                    label: {
+                        normal: {
+                            formatter: '{b}',
+                            position: 'right',
+                            show: true
+                        }
+                    },
+                    itemStyle: {
+                        normal: {
+                            color: '#f4e925',
+                            shadowBlur: 10,
+                            shadowColor: '#333'
+                        }
+                    },
+                    zlevel: 1
+                }
+            ]
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    })
+</script>
+</body>
+</html>

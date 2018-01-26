@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>中国地图作业1</title>
+    <style>
+        .tab{
+            text-align: center;
+            line-height: 30px;
+        }
+        .city{
+            height: 30px;
+            width: 50px;
+            background: red;
+        }
+        .provence{
+            height: 30px;
+            width: 50px;
+            background: gold;
+        }
+    </style>
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/echarts.min.js"></script>
+    <script src="js/china.js"></script>
+</head>
+<body>
+<!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+<div class="tab">
+    <div class="city">城市</div>
+    <div class="provence">省份</div>
+</div>
+<div id="main" style="width: 800px;height:400px;"></div>
+<div id="main2" style="width: 800px;height:400px;"></div>
+<script>
+
+    $(function () {
+        var s1=[];
+        var s2=[];
+        // var s3=[];
+        // var s4=[];
+        $.ajax({
+            async:false,
+            type:"get",
+            url:"json/provence.json",
+            dataType:"json",
+            success:function (data) {
+                console.log(data.data);
+                $.each(data.data,function (index,item) {
+                    s1.push({name:item.name,value:item.count});
+
+                })
+                console.log(s1);
+                // console.log(s2);
+            }
+        });
+        // console.log(s1);
+        // console.log(s2);
+        // console.log(s3);
+        // console.log(s4);
+
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        option = {
+            backgroundColor: '#404a59',
+            title: {
+                text: '地图作业1',
+                left: 'center',
+                background:'rgb(46,40,28)',
+            },
+            tooltip: {
+                trigger: 'item',
+
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+                data:['转载量']
+            },
+            visualMap: {
+                min: 0,
+                max: 3000,
+                left: 'left',
+                top: 'bottom',
+                text: ['高','低'],           // 文本，默认为数值文本
+                calculable: true
+            },
+            toolbox: {
+                show: true,
+                orient: 'vertical',
+                left: 'right',
+                top: 'center',
+                feature: {
+                    dataView: {readOnly: false},
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            series: [
+                {
+                    name: '转载量',
+                    type: 'map',
+                    mapType: 'china',
+                    roam: false,
+                    label: {
+                        normal: {
+                            show: true
+                        },
+                        emphasis: {
+                            show: true
+                        }
+                    },
+                    data:s1,
+                },
+            ],
+        };
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    })
+</script>
+</body>
+</html>
